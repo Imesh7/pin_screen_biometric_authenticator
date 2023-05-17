@@ -1,7 +1,6 @@
 name: pin_input_biometric_authenticator
 description: A package for pin screen & biometric authentication in one package
 version: 0.0.1
-author: Imesh Madusanka <2020imeshmadushanka@gmail.com>
 homepage: https://github.com/Imesh7/pin_screen_biometric_authenticator.git
 
 environment:
