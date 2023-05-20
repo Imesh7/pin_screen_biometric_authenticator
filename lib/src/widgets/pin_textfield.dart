@@ -23,7 +23,7 @@ class PinTextField extends StatelessWidget {
       style: textStyle,
       maxLength: textFielsLength,
       obscureText: obsecureText,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         counterText: '',
         //border: InputBorder.none,
       ),

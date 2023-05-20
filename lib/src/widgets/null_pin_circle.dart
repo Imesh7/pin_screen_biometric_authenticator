@@ -7,7 +7,7 @@ class NullPinCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
       child: ClipOval(
         child: Material(
           color: Colors.transparent,
@@ -23,7 +23,7 @@ class NullPinCircle extends StatelessWidget {
               child: Center(
                 child: Text(
                   circleIndex.toString(),
-                  style: TextStyle(color: Colors.transparent),
+                  style: const TextStyle(color: Colors.transparent),
                 ),
               ),
             ),

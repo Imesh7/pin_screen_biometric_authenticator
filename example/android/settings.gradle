@@ -1,5 +1,3 @@
-
-rootProject.name = 'com.imesh.pin_input_biometric_authenticator'
 include ':app'
 
 def localPropertiesFile = new File(rootProject.projectDir, "local.properties")

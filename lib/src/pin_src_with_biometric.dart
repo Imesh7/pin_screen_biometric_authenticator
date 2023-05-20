@@ -47,7 +47,7 @@ class _PinScreenWithBiometricState extends State<PinScreenWithBiometric> {
   }
 
   Future setBiometric() async {
-    isBiometricAvailable = await CheckBiometric.isBiometricAvailable();
+    isBiometricAvailable = await CheckBiometric().isBiometricAvailable();
     debugPrint('biometric status --------$isBiometricAvailable');
     setState(() {});
   }
@@ -64,28 +64,6 @@ class _PinScreenWithBiometricState extends State<PinScreenWithBiometric> {
             textFielsLength: widget.textFieldLength,
             textEditingController: _textEditingController,
           ),
-          /* SizedBox(
-            height: 500,
-            child: GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: 1.2,
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10),
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 9,
-              itemBuilder: (BuildContext context, int index) {
-                return SizedBox(
-                  height: 55,
-                  width: 55,
-                  child: PinCircle(
-                    circleIndex: index + 1,
-                  ),
-                );
-              },
-            ),
-          ), */
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +152,7 @@ class _PinScreenWithBiometricState extends State<PinScreenWithBiometric> {
                     ? IconButton(
                         onPressed: () async {
                           widget.authResultCallBack(
-                              await CheckBiometric.isAuthenticated());
+                              await CheckBiometric().isAuthenticated());
                         },
                         icon: const Icon(
                           Icons.fingerprint,

@@ -21,6 +21,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+plugin:
+    platforms:
+      android:
+        package: com.imesh.pin_input_biometric_authenticator
+        pluginClass: BiometricPlugin
 
   # To add assets to your package, add an assets section, like this:
   # assets:
@@ -52,3 +57,4 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+  

@@ -11,7 +11,7 @@ class IconPinCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
       child: ClipOval(
         child: Material(
           color: Colors.transparent,
@@ -32,7 +32,7 @@ class IconPinCircle extends StatelessWidget {
                 color: Colors.transparent,
                 border: Border.all(color: Colors.black, width: 1),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(
                   Icons.backspace,
                   color: Colors.black,
