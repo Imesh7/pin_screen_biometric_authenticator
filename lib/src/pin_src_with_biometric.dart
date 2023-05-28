@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:test/src/widgets/icon_pin_circle.dart';
-import 'package:test/src/widgets/null_pin_circle.dart';
-import 'package:test/src/widgets/pin_circle.dart';
-import 'package:test/src/widgets/pin_textfield.dart';
+import 'package:pin_input_biometric_authenticator/src/widgets/icon_pin_circle.dart';
+import 'package:pin_input_biometric_authenticator/src/widgets/null_pin_circle.dart';
+import 'package:pin_input_biometric_authenticator/src/widgets/pin_circle.dart';
+import 'package:pin_input_biometric_authenticator/src/widgets/pin_textfield.dart';
 import 'method_channel/check_biometric.dart';
 
 typedef AuthResultCallBack = void Function(bool? result);

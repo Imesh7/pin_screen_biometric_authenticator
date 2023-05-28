@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:test/pin_input_biometric_authenticator.dart';
+import 'package:pin_input_biometric_authenticator/pin_input_biometric_authenticator.dart';
 
 
 void main() {
