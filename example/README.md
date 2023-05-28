@@ -1,6 +1,6 @@
-# example
+# test_example
 
-A new Flutter project.
+Demonstrates how to use the test plugin.
 
 ## Getting Started
 

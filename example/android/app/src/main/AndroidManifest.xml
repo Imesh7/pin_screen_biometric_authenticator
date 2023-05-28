@@ -1,8 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.example">
-    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-   <application
-        android:label="example"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <application
+        android:label="test_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
