@@ -1,14 +1,21 @@
 
-import 'method_channel.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+
+import '../../biometric_authenticator_platform_interface.dart';
+
+
 
 class CheckBiometric {
- static Future<bool?> isBiometricAvailable() async {
-    Future<bool?> status = MethodChannelInit.platform.invokeMethod<bool>("isMobileHasBiometric");
-    return status;
+
+
+ static Future<bool?> isBiometricAvailable() {
+    return BiometricAuthenticatorPlatform.instance.getIsBiometricSupport();
   }
 
- static Future<bool?> isAuthenticated() async {
-    Future<bool?> status =  MethodChannelInit.platform.invokeMethod<bool>("checkBiometric");
-    return status;
+  static Future<bool?> authenticateBiometric() {
+    return BiometricAuthenticatorPlatform.instance.biometricAuthenticate();
   }
+
 }
