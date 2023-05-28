@@ -15,7 +15,7 @@ class PinCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
       child: ClipOval(
         child: Material(
           color: Colors.transparent,

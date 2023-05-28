@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pin_input_biometric_authenticator/src/widgets/icon_pin_circle.dart';
-import 'package:pin_input_biometric_authenticator/src/widgets/null_pin_circle.dart';
-import 'package:pin_input_biometric_authenticator/src/widgets/pin_circle.dart';
-import 'package:pin_input_biometric_authenticator/src/widgets/pin_textfield.dart';
+import 'package:test/src/widgets/icon_pin_circle.dart';
+import 'package:test/src/widgets/null_pin_circle.dart';
+import 'package:test/src/widgets/pin_circle.dart';
+import 'package:test/src/widgets/pin_textfield.dart';
 import 'method_channel/check_biometric.dart';
 
 typedef AuthResultCallBack = void Function(bool? result);
@@ -47,7 +47,7 @@ class _PinScreenWithBiometricState extends State<PinScreenWithBiometric> {
   }
 
   Future setBiometric() async {
-    isBiometricAvailable = await CheckBiometric().isBiometricAvailable();
+    isBiometricAvailable = await CheckBiometric.isBiometricAvailable();
     debugPrint('biometric status --------$isBiometricAvailable');
     setState(() {});
   }
@@ -152,7 +152,7 @@ class _PinScreenWithBiometricState extends State<PinScreenWithBiometric> {
                     ? IconButton(
                         onPressed: () async {
                           widget.authResultCallBack(
-                              await CheckBiometric().isAuthenticated());
+                              await CheckBiometric.authenticateBiometric());
                         },
                         icon: const Icon(
                           Icons.fingerprint,

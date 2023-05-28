@@ -1,11 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test/biometric_authenticator_method_channel.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelBiometricAutheticator platform = MethodChannelBiometricAutheticator();
+  //MethodChannelBiometricAutheticator platform = MethodChannelBiometricAutheticator();
   const MethodChannel channel = MethodChannel('test');
 
   setUp(() {

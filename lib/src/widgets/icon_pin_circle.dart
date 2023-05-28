@@ -21,7 +21,7 @@ class IconPinCircle extends StatelessWidget {
               if (textEditingController.text.isNotEmpty) {
                 
               List<String> intes = textEditingController.text.split('');
-              final data = intes.removeLast();
+              //final data = intes.removeLast();
               debugPrint(intes.toString());
               textEditingController.text = intes.join();
               }
