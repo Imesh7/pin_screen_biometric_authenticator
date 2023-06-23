@@ -13,7 +13,14 @@ and the Flutter guide for
 
 Pin authenticator on Screen with biometric authentication
 
-Disclaimer : Only support for Android Platform
+Disclaimer :As of Now Only support for Android Platform
+
+
+
+Below is example project overview
+
+<img src="https://i.ibb.co/1MbyZxN/pin-input-biometric-authenticator.gif"  width="250" />
+
 
 
 ## Usage
