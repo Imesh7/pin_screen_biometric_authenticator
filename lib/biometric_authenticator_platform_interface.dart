@@ -32,4 +32,7 @@ abstract class BiometricAuthenticatorPlatform extends PlatformInterface {
     throw UnimplementedError('BiometricAuthenticate() has not been implemented.');
   }
   
+  Stream biometricAuthenticateEvent(){
+    throw UnimplementedError('BiometricAuthenticate() has not been implemented.');
+  }
 }

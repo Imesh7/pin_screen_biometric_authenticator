@@ -45,6 +45,9 @@ class _PinInptBiometricAuthenticatorState
     _textEditingController.addListener(() {
       widget.controller.text = _textEditingController.text;
     });
+    CheckBiometric.authenticateBiometricEvent().listen((event) {
+      widget.authResultCallBack(event);
+    });
     super.initState();
   }
 

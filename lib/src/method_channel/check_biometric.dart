@@ -15,4 +15,8 @@ class CheckBiometric {
     return BiometricAuthenticatorPlatform.instance.biometricAuthenticate();
   }
 
+  static Stream authenticateBiometricEvent() {
+    return BiometricAuthenticatorPlatform.instance.biometricAuthenticateEvent();
+  }
+
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_input_biometric_authenticator/pin_input_biometric_authenticator.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  //WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -42,12 +42,41 @@ class HomeScreen extends StatelessWidget {
                 showDialog(
                     context: context,
                     builder: (_) {
-                      return const SizedBox(
+                      return SizedBox(
                         height: 200,
                         width: 200,
                         child: AlertDialog(
-                          title: Center(child: Text("Bioemetric Sucess")),
-                          content: Text("You have Authenticated Successfully"),
+                          title: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              result!
+                                  ? Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(25)),
+                                      child: const Icon(Icons.add))
+                                  : Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius:
+                                              BorderRadius.circular(25)),
+                                      child: const Icon(Icons.sms_failed)),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                  "Bioemetric ${result ? 'Success' : 'Failed'}"),
+                            ],
+                          )),
+                          content: Text(
+                              "You have Authenticated ${result ? 'Successfully' : 'Failed'}"),
                         ),
                       );
                     });

@@ -31,3 +31,4 @@ build/
 example/.metadata
 android/gradle/wrapper/gradle-wrapper.jar
 .metadata
+android/app/local.properties

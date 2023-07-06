@@ -1,124 +1,82 @@
 package com.imesh.pin_input_biometric_authenticator
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.content.Context
-import android.os.*
-import android.util.Log
+import android.os.Build
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
-import io.flutter.embedding.android.FlutterFragmentActivity
-import io.flutter.embedding.android.KeyData.CHANNEL
-import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import io.flutter.plugin.common.MethodChannel.Result
+import java.util.concurrent.Executor
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.MethodChannel
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugins.GeneratedPluginRegistrant
-import java.lang.reflect.Method
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.EventSink
 
 
-class BiometricPlugin : FlutterFragmentActivity(), MethodCallHandler , FlutterPlugin , ActivityAware{
-    private val CHANNEL = "pin_input_biometric_authenticator"
 
+typealias MyCallback = (authResult: Boolean, result: MethodChannel.Result) -> Unit
+/** TestPlugin */
+class BiometricPlugin: FlutterPlugin, MethodCallHandler, ActivityAware , EventChannel.StreamHandler{
+    /// The MethodChannel that will the communication between Flutter and native Android
+    ///
+    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
+    /// when the Flutter Engine is detached from the Activity
     private lateinit var executor: Executor
-    private lateinit var biometricPrompt: androidx.biometric.BiometricPrompt
-    private lateinit var promptInfo: androidx.biometric.BiometricPrompt.PromptInfo
+
     private lateinit var context : Context
-    private lateinit var myCallback : MyCallback;
-    lateinit var methodChannelResult :MethodChannel.Result
+    private lateinit var channel : MethodChannel
+    private lateinit var eventChannel: EventChannel
+    private lateinit var androidActivityFrag: FragmentActivity
+    private var sink: EventChannel.EventSink? = null;
+
+    private lateinit var biometricAuthentication: BiometricAuthentication;
+
 
     private val TAG = "BiometricAuthentication"
 
+
+    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        this.context = flutterPluginBinding.applicationContext
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pin_input_biometric_authenticator")
+        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "pin_input_biometric_authenticator_event")
+        channel.setMethodCallHandler(this)
+        eventChannel.setStreamHandler(this)
+        biometricAuthentication = BiometricAuthentication()
+
+    }
+
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.P)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.e(TAG, "called onCreate method" )
-        
-    }
+    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+        if(call.method == "isMobileHasBiometric") {
+            val isSupportBiometric = biometricAuthentication.getIsBiometricSupport(
+                context
+            )
+            result.success(isSupportBiometric)
+        } else if(call.method == "checkBiometric") {
+            executor = ContextCompat.getMainExecutor(context);
+            biometricAuthentication.checkBiometricEvent(androidActivityFrag,executor ,context, sink)
 
-
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
-        //BiometricAuthentication(this)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "pin_input_biometric_authenticator").setMethodCallHandler {
-                call, result ->
-            if(call.method == "isMobileHasBiometric"){
-                val isSupportBiometric = BiometricAuthentication().getIsBiometricSupport(
-                    this.applicationContext)
-                result.success(isSupportBiometric)
-            } else if(call.method == "checkBiometric"){
-                methodChannelResult = result;
-                val biometricResult = BiometricAuthentication()
-                    .checkBiometric(applicationContext,biometricPrompt, promptInfo)
-
-                //result.success(result)
-            }
-        }
-
-        myCallback  = { authResult: Boolean, authenticationResult: MethodChannel.Result ->
-            authenticationResult.success(authResult)
-        }
-        executor = ContextCompat.getMainExecutor(applicationContext);
-        biometricPrompt = androidx.biometric.BiometricPrompt(this, executor,
-            object :androidx.biometric.BiometricPrompt.AuthenticationCallback(){
-                override fun onAuthenticationSucceeded(
-                    result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    myCallback(true, methodChannelResult);
-
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    myCallback(false, methodChannelResult)
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    Log.e(TAG, "Biometric login failed---------$errorCode---$errString ---")
-                }
-            })
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            promptInfo = androidx.biometric.BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric login for my app")
-                .setSubtitle("Log in using your biometric credential")
-                //.setNegativeButtonText("cancel")
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG
-                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                    /*or BiometricManager.Authenticators.BIOMETRIC_WEAK*/)
-                .build()
-            executor = Executors.newSingleThreadExecutor()
+        } else {
+            result.notImplemented()
         }
     }
 
 
 
-    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        TODO("Not yet implemented")
-        println("this method will call")
-    }
-
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        TODO("Not yet implemented")
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+        context = binding.applicationContext
     }
 
     override fun onAttachedToActivity(p0: ActivityPluginBinding) {
+        androidActivityFrag = p0.activity as FragmentActivity
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -133,11 +91,11 @@ class BiometricPlugin : FlutterFragmentActivity(), MethodCallHandler , FlutterPl
         TODO("Not yet implemented")
     }
 
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        TODO("Not yet implemented")
+    override fun onListen(p0: Any?, eventSink: EventSink?) {
+        sink = eventSink;
     }
 
-
+    override fun onCancel(p0: Any?) {
+        sink = null;
+    }
 }
-
-typealias MyCallback = (authResult: Boolean, result: MethodChannel.Result) -> Unit

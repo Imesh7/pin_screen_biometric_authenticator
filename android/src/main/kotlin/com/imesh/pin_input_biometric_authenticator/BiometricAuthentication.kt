@@ -5,15 +5,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.metrics.Event
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.provider.Settings
 import android.util.Log
-import android.view.ContextThemeWrapper
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
@@ -26,6 +23,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -39,7 +37,7 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
     private lateinit var context : Context
     private lateinit var activity: Activity
     private var biometricAuthenticatedStatus : Boolean = false
-
+    private var biometricUtils : BiometricUtils = BiometricUtils();
 
     private val TAG = "BiometricAuthentication"
 
@@ -50,60 +48,60 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
 
 
     @RequiresApi(Build.VERSION_CODES.P)
-        fun getIsBiometricSupport(applicationContext: Context): Boolean {
+    fun getIsBiometricSupport(applicationContext: Context): Boolean {
 
-            val biometricManager = BiometricManager.from(applicationContext)
-            when (biometricManager.canAuthenticate(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG
-                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                        or BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
-                BiometricManager.BIOMETRIC_SUCCESS -> return true
-                    //Log.d("MY_APP_TAG", "App can authenticate using biometrics.")
+        val biometricManager = BiometricManager.from(applicationContext)
+        when (biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                    or BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> return true
+            //Log.d("MY_APP_TAG", "App can authenticate using biometrics.")
 
-                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->return  false
-                    //Log.e("MY_APP_TAG", "No biometric features available on this device.")
-                BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->return false
-                    //Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
-                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                    // Prompts the user to create credentials that your app accepts.
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->return  false
+            //Log.e("MY_APP_TAG", "No biometric features available on this device.")
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->return false
+            //Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                // Prompts the user to create credentials that your app accepts.
 
-                    try {
-                        startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
-                    } catch (e: Exception) {
-                        startActivity(Intent(Settings.ACTION_SETTINGS))
-                    }
-                        return false
-                    //startActivityForResult(enrollIntent, 500)
+                try {
+                    startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
+                } catch (e: Exception) {
+                    startActivity(Intent(Settings.ACTION_SETTINGS))
                 }
+                return false
+                //startActivityForResult(enrollIntent, 500)
             }
-            return false
         }
+        return false
+    }
 
     @SuppressLint("WrongConstant")
     @RequiresApi(Build.VERSION_CODES.M)
-    fun checkBiometric(
+    fun checkBiometricEvent(
         fragmentActivity: FragmentActivity,
         executor: Executor,
         context: Context,
-        methodChannelResult: MethodChannel.Result): Boolean {
+        eventChannelResult: EventChannel.EventSink?
+    ): Boolean {
         val biometricManager = BiometricManager.from(context)
         val hasBiometricsCapability = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
-
         if (hasBiometricsCapability) {
             val cryptoObject = BiometricPrompt.CryptoObject(
-                BiometricUtils().initializeCryptoObjectGenerate(BiometricUtils())
+                biometricUtils.initializeCryptoObjectGenerate(BiometricUtils())
             );
             biometricPrompt = androidx.biometric.BiometricPrompt(fragmentActivity, executor,
                 object :androidx.biometric.BiometricPrompt.AuthenticationCallback(){
                     override fun onAuthenticationSucceeded(
                         result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        methodChannelResult.success(true);
+                        eventChannelResult?.success(true);
                     }
 
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        methodChannelResult.success(false);
+                        eventChannelResult?.success(false)
                     }
 
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -118,13 +116,13 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
             biometricPrompt.authenticate(promptInfo, cryptoObject)
 
         } else{
-           Toast.makeText(context,"Device not Activated Biometric", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,"Device not Activated Biometric", Toast.LENGTH_SHORT).show()
         }
-      return biometricAuthenticatedStatus
+        return biometricAuthenticatedStatus
     }
 
 
-    fun promptInfoBuild() : PromptInfo {
+    private fun promptInfoBuild() : PromptInfo {
         return androidx.biometric.BiometricPrompt.PromptInfo.Builder()
             .setTitle("Biometric login for my app")
             .setSubtitle("Log in using your biometric credential")
@@ -144,7 +142,6 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         TODO("Not yet implemented")
-
     }
 
 
@@ -153,9 +150,6 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         TODO("Not yet implemented")
         this.activity = binding.activity
-        println(activity)
-
-
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -172,9 +166,9 @@ class BiometricAuthentication() : FlutterFragmentActivity(),  FlutterPlugin, Act
         TODO("Not yet implemented")
     }
 
-    override fun onMethodCall(p0: MethodCall, p1: MethodChannel.Result) {
+    override fun onMethodCall(methodCall: MethodCall, methodChannelResult: MethodChannel.Result) {
         TODO("Not yet implemented")
-        p1.success(biometricAuthenticatedStatus)
+        methodChannelResult.success(biometricAuthenticatedStatus)
     }
 
 
